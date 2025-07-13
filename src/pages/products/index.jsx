@@ -112,11 +112,11 @@ export const ProductsPage = function () {
           {filteredProducts?.map((product) => (
             <Card key={product.id} className="h-full flex flex-col hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">
-                <div className="aspect-square relative overflow-hidden rounded-md bg-gray-50">
+                <div className="aspect-square relative overflow-hidden rounded-md bg-gray-50 h-48">
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="object-contain w-full h-full p-4"
+                    className="object-contain w-full h-full p-2"
                   />
                 </div>
               </CardHeader>
