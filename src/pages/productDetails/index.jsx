@@ -88,11 +88,11 @@ export const ProductDetailsPage = function () {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Image */}
-          <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden max-w-md mx-auto lg:mx-0">
+          <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden max-w-lg mx-auto lg:mx-0">
             <img
               src={product.image}
               alt={product.title}
-              className="w-full h-full object-contain p-6"
+              className="w-full h-full object-contain p-8 hover:scale-105 transition-transform duration-300"
             />
           </div>
 
@@ -173,9 +173,9 @@ export const ProductDetailsPage = function () {
           {relatedLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="h-56">
+                <Card key={index} className="h-64">
                   <CardContent className="p-4">
-                    <Skeleton className="h-32 w-full mb-4" />
+                    <Skeleton className="h-40 w-full mb-4" />
                     <Skeleton className="h-4 w-full mb-2" />
                     <Skeleton className="h-6 w-1/3" />
                   </CardContent>
@@ -188,11 +188,11 @@ export const ProductDetailsPage = function () {
                 <Card key={relatedProduct.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-4">
                     <Link to={`/product/${relatedProduct.id}`}>
-                      <div className="aspect-square bg-gray-50 rounded-md overflow-hidden mb-4 h-32">
+                      <div className="aspect-square bg-gray-50 rounded-md overflow-hidden mb-4 h-40">
                         <img
                           src={relatedProduct.image}
                           alt={relatedProduct.title}
-                          className="w-full h-full object-contain p-1"
+                          className="w-full h-full object-contain p-2 hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                       <h3 className="font-medium text-sm line-clamp-2 mb-2">

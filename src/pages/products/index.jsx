@@ -95,9 +95,9 @@ export const ProductsPage = function () {
       {productsLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
-            <Card key={index} className="h-96">
+            <Card key={index} className="h-[400px]">
               <CardHeader>
-                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-56 w-full" />
               </CardHeader>
               <CardContent>
                 <Skeleton className="h-4 w-full mb-2" />
@@ -112,11 +112,11 @@ export const ProductsPage = function () {
           {filteredProducts?.map((product) => (
             <Card key={product.id} className="h-full flex flex-col hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">
-                <div className="aspect-square relative overflow-hidden rounded-md bg-gray-50 h-48">
+                <div className="aspect-square relative overflow-hidden rounded-md bg-gray-50 h-56">
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="object-contain w-full h-full p-2"
+                    className="object-contain w-full h-full p-4 hover:scale-105 transition-transform duration-300"
                   />
                 </div>
               </CardHeader>
