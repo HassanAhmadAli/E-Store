@@ -1,4 +1,3 @@
-
 import { useParams, Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ export const ProductDetailsPage = function () {
   const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
 
-  // Fetch single product
   const {
     data: product,
     isLoading,
@@ -27,7 +25,6 @@ export const ProductDetailsPage = function () {
     enabled: !!id,
   });
 
-  // Fetch related products from same category
   const {
     data: relatedProducts,
     isLoading: relatedLoading,
@@ -51,13 +48,11 @@ export const ProductDetailsPage = function () {
 
   if (isError) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-500">
-          <p>خطأ في تحميل تفاصيل المنتج. يرجى المحاولة مرة أخرى.</p>
-          <Button asChild className="mt-4">
-            <Link to="/products">العودة للمنتجات</Link>
-          </Button>
-        </div>
+      <div className="container mx-auto px-4 py-8 text-center text-red-500">
+        <p>Error loading product details. Please try again.</p>
+        <Button asChild className="mt-4">
+          <Link to="/products">Back to Products</Link>
+        </Button>
       </div>
     );
   }
@@ -68,15 +63,13 @@ export const ProductDetailsPage = function () {
       <Button variant="ghost" asChild className="mb-6">
         <Link to="/products" className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
-          العودة للمنتجات
+          Back to Products
         </Link>
       </Button>
 
       {isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <Skeleton className="aspect-square w-full" />
-          </div>
+          <Skeleton className="aspect-square w-full" />
           <div className="space-y-4">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
@@ -99,11 +92,11 @@ export const ProductDetailsPage = function () {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <Badge variant="secondary" className="mb-2">
+              <Badge variant="secondary" className="mb-2 capitalize">
                 {product.category}
               </Badge>
               <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
-              
+
               {/* Rating */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex items-center">
@@ -111,7 +104,7 @@ export const ProductDetailsPage = function () {
                   <span className="text-lg font-medium ml-2">{product.rating.rate}</span>
                 </div>
                 <span className="text-muted-foreground">
-                  ({product.rating.count} تقييم)
+                  ({product.rating.count} reviews)
                 </span>
               </div>
 
@@ -125,18 +118,19 @@ export const ProductDetailsPage = function () {
 
             {/* Description */}
             <div>
-              <h3 className="text-lg font-semibold mb-3">وصف المنتج</h3>
+              <h3 className="text-lg font-semibold mb-3">Product Description</h3>
               <p className="text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
             </div>
 
+            {/* ← الخط الفاصل المضاف هنا */}
             <Separator />
 
             {/* Quantity and Add to Cart */}
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <span className="font-medium">الكمية:</span>
+                <span className="font-medium">Quantity:</span>
                 <div className="flex items-center border rounded-md">
                   <Button
                     variant="ghost"
@@ -159,7 +153,7 @@ export const ProductDetailsPage = function () {
 
               <Button onClick={handleAddToCart} size="lg" className="w-full">
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                أضف إلى السلة ({quantity})
+                Add to Cart ({quantity})
               </Button>
             </div>
           </div>
@@ -169,7 +163,7 @@ export const ProductDetailsPage = function () {
       {/* Related Products */}
       {relatedProducts && relatedProducts.length > 0 && (
         <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">منتجات مشابهة</h2>
+          <h2 className="text-2xl font-bold mb-6">Related Products</h2>
           {relatedLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, index) => (
