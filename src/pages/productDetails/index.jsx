@@ -1,6 +1,7 @@
 
 import { useParams, Link } from "react-router";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,33 +15,52 @@ export const ProductDetailsPage = function () {
   const { id } = useParams();
   const { addToCart } = useCartStore();
   const {
-    product,
-    relatedProducts,
     quantity,
-    isLoading,
-    isError,
-    relatedLoading,
     increaseQuantity,
     decreaseQuantity,
-    fetchProduct,
-    clearProduct,
     resetQuantity
   } = useProductDetailsStore();
 
+  // Fetch product details using React Query
+  const { data: product, isLoading, isError } = useQuery({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      const response = await fetch(`https://fakestoreapi.com/products/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch product');
+      return response.json();
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000 // 10 minutes
+  });
+
+  // Fetch related products using React Query
+  const { data: relatedProducts, isLoading: relatedLoading } = useQuery({
+    queryKey: ['relatedProducts', product?.category, id],
+    queryFn: async () => {
+      const response = await fetch(`https://fakestoreapi.com/products/category/${product.category}`);
+      if (!response.ok) throw new Error('Failed to fetch related products');
+      const products = await response.json();
+      return products
+        .filter((p) => p.id !== parseInt(id))
+        .slice(0, 4);
+    },
+    enabled: !!product?.category && !!id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000 // 10 minutes
+  });
+
   useEffect(() => {
     if (id) {
-      fetchProduct(id);
       resetQuantity();
     }
-    
-    return () => {
-      clearProduct();
-    };
-  }, [id]);
+  }, [id, resetQuantity]);
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+    if (product) {
+      for (let i = 0; i < quantity; i++) {
+        addToCart(product);
+      }
     }
   };
 
