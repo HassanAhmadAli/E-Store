@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Link } from "react-router";
 import {
   Card,
@@ -21,63 +20,35 @@ import {
 } from "@/components/ui/select";
 import { ShoppingCart, Star } from "lucide-react";
 import useCartStore from "@/store/cartStore";
+import useProductsStore from "@/store/productsStore";
 
 export const ProductsPage = function () {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortOption, setSortOption] = useState("default");
   const { addToCart } = useCartStore();
-
   const {
-    data: products,
-    isLoading: productsLoading,
-    isError: productsError,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: () =>
-      fetch("https://fakestoreapi.com/products").then((res) => res.json()),
-  });
+    filteredProducts,
+    categories,
+    searchTerm,
+    selectedCategory,
+    sortOption,
+    isLoading,
+    isError,
+    setSearchTerm,
+    setSelectedCategory,
+    setSortOption,
+    fetchProducts,
+    fetchCategories
+  } = useProductsStore();
 
-  const {
-    data: categories,
-    isLoading: categoriesLoading,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () =>
-      fetch("https://fakestoreapi.com/products/categories").then((res) =>
-        res.json()
-      ),
-  });
-
-  const filteredProducts = products
-    ?.filter((product) => {
-      const matchesSearch = product.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "all" || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    ?.sort((a, b) => {
-      switch (sortOption) {
-        case "priceLowHigh":
-          return a.price - b.price;
-        case "priceHighLow":
-          return b.price - a.price;
-        case "ratingHigh":
-          return b.rating.rate - a.rating.rate;
-        case "nameAZ":
-          return a.title.localeCompare(b.title);
-        default:
-          return 0;
-      }
-    });
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, []);
 
   const handleAddToCart = (product) => {
     addToCart(product);
   };
 
-  if (productsError) {
+  if (isError) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-500">
@@ -106,12 +77,11 @@ export const ProductsPage = function () {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {!categoriesLoading &&
-              categories?.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </SelectItem>
-              ))}
+            {categories?.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -130,7 +100,7 @@ export const ProductsPage = function () {
       </div>
 
       {/* Product Cards */}
-      {productsLoading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
             <Card key={index} className="h-[400px]">
@@ -204,7 +174,7 @@ export const ProductsPage = function () {
       )}
 
       {/* Empty State */}
-      {filteredProducts?.length === 0 && !productsLoading && (
+      {filteredProducts?.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-gray-500">
             No products found matching your search.

@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,44 +7,41 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, Star, ArrowLeft, Minus, Plus } from "lucide-react";
 import useCartStore from "@/store/cartStore";
-import { useState } from "react";
+import useProductDetailsStore from "@/store/productDetailsStore";
 
 export const ProductDetailsPage = function () {
   const { id } = useParams();
   const { addToCart } = useCartStore();
-  const [quantity, setQuantity] = useState(1);
-
   const {
-    data: product,
+    product,
+    relatedProducts,
+    quantity,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["product", id],
-    queryFn: () =>
-      fetch(`https://fakestoreapi.com/products/${id}`).then((res) => res.json()),
-    enabled: !!id,
-  });
+    relatedLoading,
+    increaseQuantity,
+    decreaseQuantity,
+    fetchProduct,
+    clearProduct,
+    resetQuantity,
+  } = useProductDetailsStore();
 
-  const {
-    data: relatedProducts,
-    isLoading: relatedLoading,
-  } = useQuery({
-    queryKey: ["related-products", product?.category],
-    queryFn: () =>
-      fetch(`https://fakestoreapi.com/products/category/${product.category}`)
-        .then((res) => res.json())
-        .then((products) => products.filter((p) => p.id !== parseInt(id)).slice(0, 4)),
-    enabled: !!product?.category,
-  });
+  useEffect(() => {
+    if (id) {
+      fetchProduct(id);
+      resetQuantity();
+    }
+
+    return () => {
+      clearProduct();
+    };
+  }, [id]);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       addToCart(product);
     }
   };
-
-  const increaseQuantity = () => setQuantity((prev) => prev + 1);
-  const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   if (isError) {
     return (
@@ -67,7 +64,7 @@ export const ProductDetailsPage = function () {
       </Button>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <Skeleton className="aspect-square w-full" />
           <div className="space-y-4">
             <Skeleton className="h-8 w-3/4" />
@@ -77,13 +74,13 @@ export const ProductDetailsPage = function () {
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden max-w-lg mx-auto lg:mx-0">
+      ) : product ? (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="mx-auto aspect-square max-w-lg overflow-hidden rounded-lg bg-gray-50 lg:mx-0">
             <img
               src={product.image}
               alt={product.title}
-              className="w-full h-full object-contain p-8 hover:scale-105 transition-transform duration-300"
+              className="h-full w-full object-contain p-8 transition-transform duration-300 hover:scale-105"
             />
           </div>
 
@@ -92,12 +89,12 @@ export const ProductDetailsPage = function () {
               <Badge variant="secondary" className="mb-2 capitalize">
                 {product.category}
               </Badge>
-              <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+              <h1 className="mb-4 text-3xl font-bold">{product.title}</h1>
 
-              <div className="flex items-center gap-2 mb-4">
+              <div className="mb-4 flex items-center gap-2">
                 <div className="flex items-center">
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-lg font-medium ml-2">
+                  <span className="ml-2 text-lg font-medium">
                     {product.rating.rate}
                   </span>
                 </div>
@@ -106,7 +103,7 @@ export const ProductDetailsPage = function () {
                 </span>
               </div>
 
-              <div className="text-3xl font-bold text-green-600 mb-6">
+              <div className="mb-6 text-3xl font-bold text-green-600">
                 ${product.price}
               </div>
             </div>
@@ -114,8 +111,10 @@ export const ProductDetailsPage = function () {
             <Separator />
 
             <div>
-              <h3 className="text-lg font-semibold mb-3">Product Description</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="mb-3 text-lg font-semibold">
+                Product Description
+              </h3>
+              <p className="leading-relaxed text-muted-foreground">
                 {product.description}
               </p>
             </div>
@@ -123,9 +122,9 @@ export const ProductDetailsPage = function () {
             <Separator className="my-4" />
 
             <div>
-              <div className="flex items-center gap-4 mb-6">
+              <div className="mb-6 flex items-center gap-4">
                 <span className="font-medium">Quantity:</span>
-                <div className="flex items-center border rounded-md">
+                <div className="flex items-center rounded-md border">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -134,7 +133,7 @@ export const ProductDetailsPage = function () {
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="px-4 py-2 min-w-[3rem] text-center">
+                  <span className="min-w-[3rem] px-4 py-2 text-center">
                     {quantity}
                   </span>
                   <Button variant="ghost" size="sm" onClick={increaseQuantity}>
@@ -143,47 +142,51 @@ export const ProductDetailsPage = function () {
                 </div>
               </div>
 
-              <Button onClick={handleAddToCart} size="lg" className="w-full mt-4">
-                <ShoppingCart className="h-5 w-5 mr-2" />
+              <Button
+                onClick={handleAddToCart}
+                size="lg"
+                className="mt-4 w-full"
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart ({quantity})
               </Button>
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       {relatedProducts && relatedProducts.length > 0 && (
         <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+          <h2 className="mb-6 text-2xl font-bold">Related Products</h2>
           {relatedLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="h-64">
                   <CardContent className="p-4">
-                    <Skeleton className="h-40 w-full mb-4" />
-                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="mb-4 h-40 w-full" />
+                    <Skeleton className="mb-2 h-4 w-full" />
                     <Skeleton className="h-6 w-1/3" />
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((relatedProduct) => (
                 <Card
                   key={relatedProduct.id}
-                  className="hover:shadow-lg transition-shadow"
+                  className="transition-shadow hover:shadow-lg"
                 >
                   <CardContent className="p-4">
                     <Link to={`/product/${relatedProduct.id}`}>
-                      <div className="aspect-square bg-gray-50 rounded-md overflow-hidden mb-4 h-40">
+                      <div className="mb-4 aspect-square h-40 overflow-hidden rounded-md bg-gray-50">
                         <img
                           src={relatedProduct.image}
                           alt={relatedProduct.title}
-                          className="w-full h-full object-contain p-2 hover:scale-105 transition-transform duration-300"
+                          className="h-full w-full object-contain p-2 transition-transform duration-300 hover:scale-105"
                         />
                       </div>
-                      <h3 className="font-medium text-sm line-clamp-2 mb-2">
+                      <h3 className="mb-2 line-clamp-2 text-sm font-medium">
                         {relatedProduct.title}
                       </h3>
                       <p className="text-lg font-bold text-green-600">
