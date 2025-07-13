@@ -102,14 +102,14 @@ export const ProductsPage = function () {
 
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="md:w-48">
-            <SelectValue placeholder="Select category" />
+            <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {!categoriesLoading &&
               categories?.map((category) => (
                 <SelectItem key={category} value={category}>
-                  {category}
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
                 </SelectItem>
               ))}
           </SelectContent>
@@ -117,7 +117,7 @@ export const ProductsPage = function () {
 
         <Select value={sortOption} onValueChange={setSortOption}>
           <SelectTrigger className="md:w-48">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Default" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="default">Default</SelectItem>
