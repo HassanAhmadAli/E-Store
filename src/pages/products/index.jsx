@@ -1,22 +1,33 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ShoppingCart, Star } from "lucide-react";
 import useCartStore from "@/store/cartStore";
 
 export const ProductsPage = function () {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [sortOption, setSortOption] = useState("default");
   const { addToCart } = useCartStore();
 
-  // Fetch all products
   const {
     data: products,
     isLoading: productsLoading,
@@ -27,22 +38,40 @@ export const ProductsPage = function () {
       fetch("https://fakestoreapi.com/products").then((res) => res.json()),
   });
 
-  // Fetch categories
   const {
     data: categories,
     isLoading: categoriesLoading,
   } = useQuery({
     queryKey: ["categories"],
     queryFn: () =>
-      fetch("https://fakestoreapi.com/products/categories").then((res) => res.json()),
+      fetch("https://fakestoreapi.com/products/categories").then((res) =>
+        res.json()
+      ),
   });
 
-  // Filter products based on search and category
-  const filteredProducts = products?.filter((product) => {
-    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = products
+    ?.filter((product) => {
+      const matchesSearch = product.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || product.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    })
+    ?.sort((a, b) => {
+      switch (sortOption) {
+        case "priceLowHigh":
+          return a.price - b.price;
+        case "priceHighLow":
+          return b.price - a.price;
+        case "ratingHigh":
+          return b.rating.rate - a.rating.rate;
+        case "nameAZ":
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -52,7 +81,7 @@ export const ProductsPage = function () {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-500">
-          <p>خطأ في تحميل المنتجات. يرجى المحاولة مرة أخرى.</p>
+          <p>Error loading products. Please try again.</p>
         </div>
       </div>
     );
@@ -60,40 +89,49 @@ export const ProductsPage = function () {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-6">المنتجات</h1>
-        
-        {/* Search and Filter Section */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <Input
-              placeholder="البحث عن منتج..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
-          </div>
-          <div className="md:w-48">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="اختر الفئة" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">جميع الفئات</SelectItem>
-                {!categoriesLoading && categories?.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+      <h1 className="text-3xl font-bold mb-6">Products</h1>
+
+      {/* Search, Filter, Sort */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <Input
+          placeholder="Search for a product..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="md:w-1/2"
+        />
+
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="md:w-48">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {!categoriesLoading &&
+              categories?.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={sortOption} onValueChange={setSortOption}>
+          <SelectTrigger className="md:w-48">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Default</SelectItem>
+            <SelectItem value="priceLowHigh">Price: Low to High</SelectItem>
+            <SelectItem value="priceHighLow">Price: High to Low</SelectItem>
+            <SelectItem value="ratingHigh">Highest Rating</SelectItem>
+            <SelectItem value="nameAZ">Name A-Z</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Products Grid */}
+      {/* Product Cards */}
       {productsLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
             <Card key={index} className="h-[400px]">
               <CardHeader>
@@ -108,55 +146,56 @@ export const ProductsPage = function () {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts?.map((product) => (
-            <Card key={product.id} className="h-full flex flex-col hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="aspect-square relative overflow-hidden rounded-md bg-gray-50 h-56">
+            <Card
+              key={product.id}
+              className="h-full flex flex-col justify-between hover:shadow-lg transition-shadow border rounded-xl overflow-hidden"
+            >
+              <CardHeader className="p-4 pb-0">
+                <div className="w-full h-64 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="object-contain w-full h-full p-4 hover:scale-105 transition-transform duration-300"
+                    className="h-full max-h-56 object-contain transition-transform duration-300 hover:scale-105"
                   />
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <Badge variant="secondary" className="w-fit mb-2 text-xs">
+
+              <CardContent className="flex-1 flex flex-col px-4 pt-4 pb-0">
+                <Badge
+                  variant="secondary"
+                  className="w-fit mb-2 text-xs capitalize"
+                >
                   {product.category}
                 </Badge>
-                <CardTitle className="text-sm line-clamp-2 mb-2">
+                <CardTitle className="text-base font-semibold mb-1 line-clamp-2">
                   {product.title}
                 </CardTitle>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">
+                <p className="text-sm text-gray-600 line-clamp-3 mb-3">
                   {product.description}
                 </p>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-muted-foreground ml-1">
-                      {product.rating.rate} ({product.rating.count})
-                    </span>
-                  </div>
+                <div className="flex items-center text-sm text-yellow-600 gap-1 mb-2">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  {product.rating.rate}{" "}
+                  <span className="text-gray-500">({product.rating.count})</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-green-600">
-                    ${product.price}
-                  </span>
+                <div className="text-lg font-bold text-green-600 mb-3">
+                  ${product.price}
                 </div>
               </CardContent>
-              <CardFooter className="flex gap-2">
-                <Button asChild variant="outline" size="sm" className="flex-1">
-                  <Link to={`/product/${product.id}`}>
-                    عرض التفاصيل
-                  </Link>
+
+              <CardFooter className="flex gap-2 px-4 pb-4">
+                <Button asChild variant="outline" size="sm" className="w-1/2">
+                  <Link to={`/product/${product.id}`}>View Details</Link>
                 </Button>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   onClick={() => handleAddToCart(product)}
-                  className="flex-1"
+                  className="w-1/2"
                 >
                   <ShoppingCart className="h-4 w-4 mr-1" />
-                  أضف للسلة
+                  Add to Cart
                 </Button>
               </CardFooter>
             </Card>
@@ -164,9 +203,12 @@ export const ProductsPage = function () {
         </div>
       )}
 
+      {/* Empty State */}
       {filteredProducts?.length === 0 && !productsLoading && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">لا توجد منتجات تطابق البحث.</p>
+          <p className="text-muted-foreground text-gray-500">
+            No products found matching your search.
+          </p>
         </div>
       )}
     </div>
