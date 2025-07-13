@@ -43,8 +43,8 @@ export const ProductDetailsPage = function () {
     }
   };
 
-  const increaseQuantity = () => setQuantity(prev => prev + 1);
-  const decreaseQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
+  const increaseQuantity = () => setQuantity((prev) => prev + 1);
+  const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   if (isError) {
     return (
@@ -59,7 +59,6 @@ export const ProductDetailsPage = function () {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Back Button */}
       <Button variant="ghost" asChild className="mb-6">
         <Link to="/products" className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
@@ -80,7 +79,6 @@ export const ProductDetailsPage = function () {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Image */}
           <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden max-w-lg mx-auto lg:mx-0">
             <img
               src={product.image}
@@ -89,7 +87,6 @@ export const ProductDetailsPage = function () {
             />
           </div>
 
-          {/* Product Info */}
           <div className="space-y-6">
             <div>
               <Badge variant="secondary" className="mb-2 capitalize">
@@ -97,18 +94,18 @@ export const ProductDetailsPage = function () {
               </Badge>
               <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
 
-              {/* Rating */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex items-center">
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-lg font-medium ml-2">{product.rating.rate}</span>
+                  <span className="text-lg font-medium ml-2">
+                    {product.rating.rate}
+                  </span>
                 </div>
                 <span className="text-muted-foreground">
                   ({product.rating.count} reviews)
                 </span>
               </div>
 
-              {/* Price */}
               <div className="text-3xl font-bold text-green-600 mb-6">
                 ${product.price}
               </div>
@@ -116,7 +113,6 @@ export const ProductDetailsPage = function () {
 
             <Separator />
 
-            {/* Description */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Product Description</h3>
               <p className="text-muted-foreground leading-relaxed">
@@ -124,12 +120,10 @@ export const ProductDetailsPage = function () {
               </p>
             </div>
 
-            {/* ← الخط الفاصل المضاف هنا */}
-            <Separator />
+            <Separator className="my-4" />
 
-            {/* Quantity and Add to Cart */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-4">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
                 <span className="font-medium">Quantity:</span>
                 <div className="flex items-center border rounded-md">
                   <Button
@@ -140,18 +134,16 @@ export const ProductDetailsPage = function () {
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="px-4 py-2 min-w-[3rem] text-center">{quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={increaseQuantity}
-                  >
+                  <span className="px-4 py-2 min-w-[3rem] text-center">
+                    {quantity}
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={increaseQuantity}>
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
-              <Button onClick={handleAddToCart} size="lg" className="w-full">
+              <Button onClick={handleAddToCart} size="lg" className="w-full mt-4">
                 <ShoppingCart className="h-5 w-5 mr-2" />
                 Add to Cart ({quantity})
               </Button>
@@ -160,7 +152,6 @@ export const ProductDetailsPage = function () {
         </div>
       )}
 
-      {/* Related Products */}
       {relatedProducts && relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold mb-6">Related Products</h2>
@@ -179,7 +170,10 @@ export const ProductDetailsPage = function () {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <Card key={relatedProduct.id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={relatedProduct.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardContent className="p-4">
                     <Link to={`/product/${relatedProduct.id}`}>
                       <div className="aspect-square bg-gray-50 rounded-md overflow-hidden mb-4 h-40">
