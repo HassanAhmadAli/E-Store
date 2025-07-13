@@ -1,5 +1,6 @@
+
 import { useParams, Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,44 +8,41 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, Star, ArrowLeft, Minus, Plus } from "lucide-react";
 import useCartStore from "@/store/cartStore";
-import { useState } from "react";
+import useProductDetailsStore from "@/store/productDetailsStore";
 
 export const ProductDetailsPage = function () {
   const { id } = useParams();
   const { addToCart } = useCartStore();
-  const [quantity, setQuantity] = useState(1);
-
   const {
-    data: product,
+    product,
+    relatedProducts,
+    quantity,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["product", id],
-    queryFn: () =>
-      fetch(`https://fakestoreapi.com/products/${id}`).then((res) => res.json()),
-    enabled: !!id,
-  });
+    relatedLoading,
+    increaseQuantity,
+    decreaseQuantity,
+    fetchProduct,
+    clearProduct,
+    resetQuantity
+  } = useProductDetailsStore();
 
-  const {
-    data: relatedProducts,
-    isLoading: relatedLoading,
-  } = useQuery({
-    queryKey: ["related-products", product?.category],
-    queryFn: () =>
-      fetch(`https://fakestoreapi.com/products/category/${product.category}`)
-        .then((res) => res.json())
-        .then((products) => products.filter((p) => p.id !== parseInt(id)).slice(0, 4)),
-    enabled: !!product?.category,
-  });
+  useEffect(() => {
+    if (id) {
+      fetchProduct(id);
+      resetQuantity();
+    }
+    
+    return () => {
+      clearProduct();
+    };
+  }, [id]);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
       addToCart(product);
     }
   };
-
-  const increaseQuantity = () => setQuantity((prev) => prev + 1);
-  const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   if (isError) {
     return (
@@ -77,7 +75,7 @@ export const ProductDetailsPage = function () {
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
-      ) : (
+      ) : product ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden max-w-lg mx-auto lg:mx-0">
             <img
@@ -150,7 +148,7 @@ export const ProductDetailsPage = function () {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       {relatedProducts && relatedProducts.length > 0 && (
         <div className="mt-16">
