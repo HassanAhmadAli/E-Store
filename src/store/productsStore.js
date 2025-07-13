@@ -1,7 +1,8 @@
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useProductsStore = create((set, get) => ({
+const useProductsStore = create(persist((set, get) => ({
   products: [],
   categories: [],
   filteredProducts: [],
@@ -79,6 +80,14 @@ const useProductsStore = create((set, get) => ({
       console.error('Failed to fetch categories:', error);
     }
   }
+}), {
+  name: 'products-storage',
+  partialize: (state) => ({
+    products: state.products,
+    categories: state.categories,
+    selectedCategory: state.selectedCategory,
+    sortOption: state.sortOption
+  })
 }));
 
 export default useProductsStore;

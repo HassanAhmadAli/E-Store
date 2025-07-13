@@ -1,7 +1,8 @@
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useProductDetailsStore = create((set, get) => ({
+const useProductDetailsStore = create(persist((set, get) => ({
   product: null,
   relatedProducts: [],
   quantity: 1,
@@ -62,6 +63,11 @@ const useProductDetailsStore = create((set, get) => ({
     isLoading: false,
     isError: false,
     relatedLoading: false
+  })
+}), {
+  name: 'product-details-storage',
+  partialize: (state) => ({
+    quantity: state.quantity
   })
 }));
 
