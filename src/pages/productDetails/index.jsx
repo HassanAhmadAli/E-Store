@@ -128,7 +128,7 @@ export const ProductDetailsPage = function () {
             <Separator />
 
             {/* Quantity and Add to Cart */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div className="flex items-center gap-4">
                 <span className="font-medium">Quantity:</span>
                 <div className="flex items-center border rounded-md">
