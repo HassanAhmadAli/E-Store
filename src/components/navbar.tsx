@@ -42,7 +42,7 @@ const SearchArea = function () {
   </div>;
 }
 export const NavBar = function () {
-  const user = useUserStore((state: { user: unknown }) => state.user);
+  const user = useUserStore((state) => state.user);
   const handleLogout = useUserStore((state: { logout: () => void }) => state.logout);
   const cart: [] = useCartStore((state: { cart: [] }) => state.cart);
   const cartCount = cart.length;
