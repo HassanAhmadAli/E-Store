@@ -7,23 +7,6 @@ export const CartPage = function () {
   const { cart, addToCart, removeFromCart, clearCart } = useCartStore();
   const { placeOrder } = useOrderStore();
 
-  const [showProductList, setShowProductList] = useState(false);
-  const {
-    data: products,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["allProducts"],
-    queryFn: () =>
-      fetch("https://fakestoreapi.com/products").then((res) => res.json()),
-  });
-  console.log(isLoading);
-  console.log(isError);
-  console.log(products);
-  const handleAddToCart = (product) => {
-    addToCart(product);
-  };
-
   const handlePlaceOrder = () => {
     if (cart.length === 0) return;
     placeOrder(cart);
@@ -63,34 +46,6 @@ export const CartPage = function () {
 
       <hr className="my-6" />
 
-      <button
-        onClick={() => setShowProductList(!showProductList)}
-        className="mb-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-      >
-        {showProductList ? "إغلاق قائمة المنتجات" : "➕ إضافة عناصر للسلة"}
-      </button>
-
-      {showProductList && (
-        <div>
-          {isLoading && <p>جاري تحميل المنتجات...</p>}
-          {isError && <p className="text-red-500">فشل تحميل المنتجات.</p>}
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {products?.map((product) => (
-              <div key={product.id} className="rounded border p-3 shadow-sm">
-                <h3 className="font-medium">{product.title}</h3>
-                <p className="text-sm text-gray-600">{product.price} $</p>
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  className="mt-2 rounded bg-gray-800 px-3 py-1 text-sm text-white hover:bg-gray-700"
-                >
-                  أضف إلى السلة
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
