@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useCartStore from "@/store/cartStore";
 import useOrderStore from "@/store/orderStore";
+import { toast } from "sonner";
 
 export const CartPage = function () {
   const { cart, addToCart, removeFromCart, clearCart } = useCartStore();
@@ -11,9 +12,11 @@ export const CartPage = function () {
     if (cart.length === 0) return;
     placeOrder(cart);
     clearCart();
-    alert("تم إرسال الطلب بنجاح!");
-  };
-
+    toast.success("✅ Cart Order Placed");
+    // } else {
+    //   toast.error("❌ Invalid ");
+    // }
+  };       
   return (
     <div className="mx-auto max-w-3xl p-6">
       <h1 className="mb-4 text-2xl font-bold">🛒 السلة</h1>
