@@ -18,10 +18,11 @@ export const AppRoutes = function () {
         <Route path="orders" element={<OrdersPage />}></Route>
         <Route path="product/:id" element={<ProductDetailsPage />}></Route>
         <Route path="products" element={<ProductsPage />}></Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
       <Route path="/login" element={<LoginPage />}></Route>
       <Route path="/signup" element={<SignupPage />}></Route>
-      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

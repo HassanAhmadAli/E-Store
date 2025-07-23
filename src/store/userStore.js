@@ -9,7 +9,7 @@ const useUserStore = create(
       logout: () => set({ user: null }),
     }),
     {
-      name: 'user-storage', 
+      name: 'user-storage',
     }
   )
 );

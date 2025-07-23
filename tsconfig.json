@@ -9,6 +9,9 @@
     }
   ],
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "strict": true,
     "noUnusedLocals": false,
     "baseUrl": ".",
     "paths": {

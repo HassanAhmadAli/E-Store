@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import useUserStore from "../../../store/userStore";
+import { useNavigate } from "react-router";
+import useUserStore from "@/store/userStore";
 import { toast } from "sonner";
 
 export function LoginPage() {
