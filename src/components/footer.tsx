@@ -28,7 +28,13 @@ export const Footer = function () {
               {socialMediaIcons.map(icon => {
                 return (
                   <Button key={icon.name} variant="ghost" size="sm" className="cursor-pointer p-2">
-                    <img src={icon.src} className="logo h-4 w-4" alt={icon.name} />
+                    <img src={icon.src}
+                      className="logo h-4 w-4"
+                      style={{
+                        filter: "invert(32%) sepia(60%) saturate(500%) hue-rotate(180deg)"
+                      }}
+                      alt={icon.name}
+                    />
                   </Button>
                 )
               })}

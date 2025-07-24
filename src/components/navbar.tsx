@@ -27,16 +27,29 @@ import { default as useCartStore } from "@/store/cartStore"
 import { ModeToggle } from "./mode-toggle";
 import { Link } from "react-router";
 import { photo1 } from "@/constants/const";
+import useProductsStore from "@/store/productsStore";
 const navigationItems: { title: string; path: string; icon?: React.ReactNode }[] = [
   { title: "Home", path: "/", icon: <Store className="h-4 w-4" /> },
   { title: "Products", path: "/products", icon: <Package className="h-4 w-4" /> },
   { title: "Orders", path: "/orders", icon: <Package className="h-4 w-4" /> },
 ];
+import { useNavigate } from "react-router";
 const SearchArea = function () {
+  const { setSearchTerm } = useProductsStore();
+  const navigate = useNavigate();
+
   return <div className="relative md:w-full">
-    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <Search
+      onClick={() => navigate('/products')}
+      className="cursor-pointer absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
     <Input
       placeholder="Search products..."
+      onChange={(e) => setSearchTerm(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          navigate('/products');
+        }
+      }}
       className="pl-10 w-full"
     />
   </div>;

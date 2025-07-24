@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
-import useProductsStore from "../../store/productsStore";
-import useCartStore from "../../store/cartStore";
+import { Link } from "react-router";
+import useProductsStore from "@/store/productsStore";
+import useCartStore from "@/store/cartStore";
 import { useEffect } from "react";
 
 import {

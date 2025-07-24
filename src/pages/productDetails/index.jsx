@@ -13,40 +13,40 @@ import useProductDetailsStore from "@/store/productDetailsStore";
 export const ProductDetailsPage = function () {
   const { id } = useParams();
   const { addToCart } = useCartStore();
-  const {
-    quantity,
-    increaseQuantity,
-    decreaseQuantity,
-    resetQuantity
-  } = useProductDetailsStore();
+  const { quantity, increaseQuantity, decreaseQuantity, resetQuantity } =
+    useProductDetailsStore();
 
   // Fetch product details using React Query
-  const { data: product, isLoading, isError } = useQuery({
-    queryKey: ['product', id],
+  const {
+    data: product,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["product", id],
     queryFn: async () => {
       const response = await fetch(`https://fakestoreapi.com/products/${id}`);
-      if (!response.ok) throw new Error('Failed to fetch product');
+      if (!response.ok) throw new Error("Failed to fetch product");
       return response.json();
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000 // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Fetch related products using React Query
   const { data: relatedProducts, isLoading: relatedLoading } = useQuery({
-    queryKey: ['relatedProducts', product?.category, id],
+    queryKey: ["relatedProducts", product?.category, id],
     queryFn: async () => {
-      const response = await fetch(`https://fakestoreapi.com/products/category/${product.category}`);
-      if (!response.ok) throw new Error('Failed to fetch related products');
+      const response = await fetch(
+        `https://fakestoreapi.com/products/category/${product.category}`,
+      );
+      if (!response.ok) throw new Error("Failed to fetch related products");
       const products = await response.json();
-      return products
-        .filter((p) => p.id !== parseInt(id))
-        .slice(0, 4);
+      return products.filter((p) => p.id !== parseInt(id)).slice(0, 4);
     },
     enabled: !!product?.category && !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000 // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   useEffect(() => {

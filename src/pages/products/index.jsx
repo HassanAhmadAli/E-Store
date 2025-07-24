@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -36,31 +35,37 @@ export const ProductsPage = function () {
     setSearchTerm,
     setSelectedCategory,
     setSortOption,
-    filterProducts
+    filterProducts,
   } = useProductsStore();
 
   // Fetch products using React Query
-  const { data: products, isLoading: productsLoading, isError: productsError } = useQuery({
-    queryKey: ['products'],
+  const {
+    data: products,
+    isLoading: productsLoading,
+    isError: productsError,
+  } = useQuery({
+    queryKey: ["products"],
     queryFn: async () => {
-      const response = await fetch('https://fakestoreapi.com/products');
-      if (!response.ok) throw new Error('Failed to fetch products');
+      const response = await fetch("https://fakestoreapi.com/products");
+      if (!response.ok) throw new Error("Failed to fetch products");
       return response.json();
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000 // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Fetch categories using React Query
   const { data: categories } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ["categories"],
     queryFn: async () => {
-      const response = await fetch('https://fakestoreapi.com/products/categories');
-      if (!response.ok) throw new Error('Failed to fetch categories');
+      const response = await fetch(
+        "https://fakestoreapi.com/products/categories",
+      );
+      if (!response.ok) throw new Error("Failed to fetch categories");
       return response.json();
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 15 * 60 * 1000 // 15 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
   });
 
   // Update Zustand store when data changes
@@ -99,10 +104,10 @@ export const ProductsPage = function () {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Products</h1>
+      <h1 className="mb-6 text-3xl font-bold">Products</h1>
 
       {/* Search, Filter, Sort */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+      <div className="mb-8 flex flex-col gap-4 md:flex-row">
         <Input
           placeholder="Search for a product..."
           value={searchTerm}
@@ -140,29 +145,29 @@ export const ProductsPage = function () {
 
       {/* Product Cards */}
       {productsLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, index) => (
             <Card key={index} className="h-[400px]">
               <CardHeader>
                 <Skeleton className="h-56 w-full" />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-2/3 mb-2" />
+                <Skeleton className="mb-2 h-4 w-full" />
+                <Skeleton className="mb-2 h-4 w-2/3" />
                 <Skeleton className="h-6 w-1/3" />
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProducts?.map((product) => (
             <Card
               key={product.id}
-              className="h-full flex flex-col justify-between hover:shadow-lg transition-shadow border rounded-xl overflow-hidden"
+              className="flex h-full flex-col justify-between overflow-hidden rounded-xl border transition-shadow hover:shadow-lg"
             >
               <CardHeader className="p-4 pb-0">
-                <div className="w-full h-64 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+                <div className="flex h-64 w-full items-center justify-center overflow-hidden rounded-lg bg-gray-100">
                   <img
                     src={product.image}
                     alt={product.title}
@@ -171,25 +176,27 @@ export const ProductsPage = function () {
                 </div>
               </CardHeader>
 
-              <CardContent className="flex-1 flex flex-col px-4 pt-4 pb-0">
+              <CardContent className="flex flex-1 flex-col px-4 pt-4 pb-0">
                 <Badge
                   variant="secondary"
-                  className="w-fit mb-2 text-xs capitalize"
+                  className="mb-2 w-fit text-xs capitalize"
                 >
                   {product.category}
                 </Badge>
-                <CardTitle className="text-base font-semibold mb-1 line-clamp-2">
+                <CardTitle className="mb-1 line-clamp-2 text-base font-semibold">
                   {product.title}
                 </CardTitle>
-                <p className="text-sm text-gray-600 line-clamp-3 mb-3">
+                <p className="mb-3 line-clamp-3 text-sm text-gray-600">
                   {product.description}
                 </p>
-                <div className="flex items-center text-sm text-yellow-600 gap-1 mb-2">
+                <div className="mb-2 flex items-center gap-1 text-sm text-yellow-600">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   {product.rating.rate}{" "}
-                  <span className="text-gray-500">({product.rating.count})</span>
+                  <span className="text-gray-500">
+                    ({product.rating.count})
+                  </span>
                 </div>
-                <div className="text-lg font-bold text-green-600 mb-3">
+                <div className="mb-3 text-lg font-bold text-green-600">
                   ${product.price}
                 </div>
               </CardContent>
@@ -203,7 +210,7 @@ export const ProductsPage = function () {
                   onClick={() => handleAddToCart(product)}
                   className="w-1/2"
                 >
-                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  <ShoppingCart className="mr-1 h-4 w-4" />
                   Add to Cart
                 </Button>
               </CardFooter>
@@ -214,8 +221,8 @@ export const ProductsPage = function () {
 
       {/* Empty State */}
       {filteredProducts?.length === 0 && !productsLoading && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-gray-500">
+        <div className="py-12 text-center">
+          <p className="text-gray-500 text-muted-foreground">
             No products found matching your search.
           </p>
         </div>
