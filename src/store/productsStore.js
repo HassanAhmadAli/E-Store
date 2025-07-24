@@ -8,20 +8,39 @@ const useProductsStore = create(persist((set, get) => ({
   searchTerm: '',
   selectedCategory: 'all',
   sortOption: 'default',
+  isLoading: false,
+
+  
+  fetchProducts: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch('https://fakestoreapi.com/products');
+      const data = await response.json();
+      set({ products: data, isLoading: false });
+      get().filterProducts();
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      set({ isLoading: false });
+    }
+  },
 
   setProducts: (products) => {
     set({ products });
     get().filterProducts();
   },
+
   setCategories: (categories) => set({ categories }),
+
   setSearchTerm: (searchTerm) => {
     set({ searchTerm });
     get().filterProducts();
   },
+
   setSelectedCategory: (selectedCategory) => {
     set({ selectedCategory });
     get().filterProducts();
   },
+
   setSortOption: (sortOption) => {
     set({ sortOption });
     get().filterProducts();
