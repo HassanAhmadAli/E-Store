@@ -1,5 +1,7 @@
+
 import { useEffect } from "react";
 import { Link } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -26,29 +28,66 @@ export const ProductsPage = function () {
   const { addToCart } = useCartStore();
   const {
     filteredProducts,
-    categories,
     searchTerm,
     selectedCategory,
     sortOption,
-    isLoading,
-    isError,
+    setProducts,
+    setCategories,
     setSearchTerm,
     setSelectedCategory,
     setSortOption,
-    fetchProducts,
-    fetchCategories
+    filterProducts
   } = useProductsStore();
 
+  // Fetch products using React Query
+  const { data: products, isLoading: productsLoading, isError: productsError } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const response = await fetch('https://fakestoreapi.com/products');
+      if (!response.ok) throw new Error('Failed to fetch products');
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000 // 10 minutes
+  });
+
+  // Fetch categories using React Query
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('https://fakestoreapi.com/products/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000 // 15 minutes
+  });
+
+  // Update Zustand store when data changes
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
+    if (products) {
+      setProducts(products);
+    }
+  }, [products, setProducts]);
+
+  useEffect(() => {
+    if (categories) {
+      setCategories(categories);
+    }
+  }, [categories, setCategories]);
+
+  // Filter products when dependencies change
+  useEffect(() => {
+    if (products) {
+      filterProducts();
+    }
+  }, [products, searchTerm, selectedCategory, sortOption, filterProducts]);
 
   const handleAddToCart = (product) => {
     addToCart(product);
   };
 
-  if (isError) {
+  if (productsError) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-500">
@@ -100,7 +139,7 @@ export const ProductsPage = function () {
       </div>
 
       {/* Product Cards */}
-      {isLoading ? (
+      {productsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
             <Card key={index} className="h-[400px]">
@@ -174,7 +213,7 @@ export const ProductsPage = function () {
       )}
 
       {/* Empty State */}
-      {filteredProducts?.length === 0 && !isLoading && (
+      {filteredProducts?.length === 0 && !productsLoading && (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-gray-500">
             No products found matching your search.
