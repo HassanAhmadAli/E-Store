@@ -1,17 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 const MemberInfo = function ({ essentials, name }: { essentials: string, name: string }) {
     return (<div className="flex items-center gap-4">
         <Avatar>
-            <AvatarImage src="/founder.jpg" alt="Founder" />
             <AvatarFallback>{essentials}</AvatarFallback>
         </Avatar>
         <div>
             <p className="font-medium">{name}</p>
         </div>
     </div>);
-
 }
 export const AboutUsPage = function () {
     return (
