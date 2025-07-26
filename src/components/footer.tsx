@@ -47,10 +47,18 @@ export const Footer = function () {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  to="/"
+                  to="/contactUs"
                   className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100  transition-colors"
                 >
                   Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/aboutUs"
+                  className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100  transition-colors"
+                >
+                  About Us
                 </Link>
               </li>
               <li>
